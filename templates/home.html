@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Blog App</title>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6f9;
+      margin: 0;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    /* NAVBAR */
+    .nav {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      background: #007BFF;
+      padding: 15px;
+    }
+
+    .nav button {
+      background: white;
+      color: #007BFF;
+      padding: 10px 20px;
+      border-radius: 20px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    /* GRID */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      width: 90%;
+      margin: 30px auto;
+    }
+
+    /* CARD */
+    .card {
+      background: white;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+    }
+
+    .card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+
+    .card-content {
+      padding: 15px;
+    }
+
+    .card h2 {
+      font-size: 18px;
+      color: #333;
+    }
+
+    .card p {
+      font-size: 14px;
+      color: #666;
+    }
+
+    /* DETAIL PAGE */
+    .detail {
+      width: 100%;
+      height: 80vh;
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .overlay {
+      background: rgba(0,0,0,0.6);
+      padding: 40px;
+      border-radius: 15px;
+      width: 60%;
+      text-align: center;
+      color: white;
+    }
+
+    .overlay h1 {
+      font-size: 35px;
+    }
+
+    .overlay p {
+      font-size: 18px;
+    }
+
+    /* BUTTONS */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      margin: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      background: #007BFF;
+      color: white;
+      border-radius: 20px;
+      cursor: pointer;
+      margin: 5px;
+    }
+
+    /* COMMENTS */
+    ul {
+      width: 60%;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      list-style: none;
+    }
+
+    li {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    strong {
+      color: #007BFF;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- NAV -->
+<div class="nav">
+  <button onclick="location.href='/post'">Posts</button>
+  <button onclick="location.href='/albums'">Albums</button>
+</div>
+
+<!-- POSTS -->
+{% if page_type == "home" %}
+<h1>Latest Posts</h1>
+
+<div class="grid">
+  {% for p in posts %}
+    <div class="card" onclick="location.href='/post/{{p.id}}'">
+      <!-- RANDOM IMAGE -->
+      <img src="https://picsum.photos/400/300?random={{p.id}}">
+      
+      <div class="card-content">
+        <h2>{{p.title}}</h2>
+        <p>{{p.body[:80]}}...</p>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<div class="pagination">
+  {% if current_page > 1 %}
+    <button onclick="location.href='/post/page/{{current_page - 1}}'">Prev</button>
+  {% endif %}
+
+  {% if has_next %}
+    <button onclick="location.href='/post/page/{{current_page + 1}}'">Next</button>
+  {% endif %}
+</div>
+{% endif %}
+
+<!-- POST DETAIL -->
+{% if page_type == "detail" %}
+<div class="detail" style="background-image:url('https://picsum.photos/1200/600?random={{post.id}}')">
+  <div class="overlay">
+    <h1>{{post.title}}</h1>
+    <p>{{post.body}}</p>
+  </div>
+</div>
+
+<div class="pagination">
+  <button onclick="location.href='/content/{{post.id}}'">Comments</button>
+  <button onclick="location.href='/post'">Back</button>
+</div>
+{% endif %}
+
+<!-- COMMENTS -->
+{% if page_type == "comments" %}
+<h1>Comments</h1>
+
+<ul>
+  {% for c in comments %}
+    <li>
+      <strong>{{c.name}}</strong><br>
+      {{c.body}}
+    </li>
+  {% endfor %}
+</ul>
+
+<div class="pagination">
+  <button onclick="location.href='/post/{{post.id}}'">Back</button>
+</div>
+{% endif %}
+
+<!-- ALBUMS -->
+{% if page_type == "albums" %}
+<h1>Albums</h1>
+
+<div class="grid">
+  {% for a in albums %}
+    <div class="card" onclick="location.href='/album/{{a.id}}'">
+      <!-- ALBUM COVER IMAGE -->
+      <img src="https://picsum.photos/400/300?random={{a.id + 50}}">
+      
+      <div class="card-content">
+        <h2>{{a.title}}</h2>
+        <p>Album #{{a.id}}</p>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- ALBUM DETAIL -->
+{% if page_type == "album_detail" %}
+<h1>{{album.title}}</h1>
+
+<div class="grid">
+  {% for photo in photos %}
+    <div class="card" onclick="location.href='/photo/{{photo.id}}'">
+      <img src="{{photo.url}}">
+      <div class="card-content">
+        <p>{{photo.title}}</p>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- PHOTO DETAIL -->
+{% if page_type == "photo_detail" %}
+<div class="detail" style="background-image:url('{{photo.url}}')">
+  <div class="overlay">
+    <h1>{{photo.title}}</h1>
+  </div>
+</div>
+
+<div class="pagination">
+  <button onclick="history.back()">Back</button>
+</div>
+{% endif %}
+
+</body>
+</html>
